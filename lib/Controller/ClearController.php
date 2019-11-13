@@ -60,7 +60,7 @@ class ClearController extends Controller {
 		$qb->select('*')
 			->from('storages')
 			->where(
-				$qb->expr()->eq('id', $qb->createNamedParameter('home::'.$uid))
+				$qb->expr()->eq('id', $qb->createNamedParameter('object::user:'.$uid))
 			);
 
 		$cursor = $qb->execute();
