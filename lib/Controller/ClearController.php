@@ -24,6 +24,8 @@ declare(strict_types=1);
 
 namespace OCA\StorageFixer\Controller;
 
+use OCA\Files_Sharing\External\Storage;
+use OCA\Files_Sharing\SharedStorage;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -70,13 +72,17 @@ class ClearController extends Controller {
 		}
 		$cursor->closeCursor();
 
-		// First clean the user files
-		$userFolder = $this->rootFolder->getUserFolder($uid);
-		$this->cleanupFolder($userFolder);
+		try {
+			// First clean the user files
+			$userFolder = $this->rootFolder->getUserFolder($uid);
+			$this->cleanupFolder($userFolder);
 
-		// Now clean the user root
-		$userRoot = $userFolder->getParent();
-		$this->cleanupFolder($userRoot);
+			// Now clean the user root
+			$userRoot = $userFolder->getParent();
+			$this->cleanupFolder($userRoot);
+		} catch (\Exception $e) {
+			//This can happen if the userfolder is already gone for example. Just carry on then.
+		}
 
 		//Now remove all user preferences
 		$this->cleanupSettings($uid);
@@ -104,6 +110,17 @@ class ClearController extends Controller {
 					// Just continue
 				}
 			} else if ($node instanceof Folder) {
+
+				// No need to go into shared storages
+				if ($node->getStorage()->instanceOfStorage(SharedStorage::class)) {
+					continue;
+				}
+
+				// No need to go into external storages
+				if ($node->getStorage()->instanceOfStorage(Storage::class)) {
+					continue;
+				}
+
 				$this->cleanupFolder($node);
 				try {
 					$node->delete();

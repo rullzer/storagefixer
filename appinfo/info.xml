@@ -5,7 +5,7 @@
 	<name>Storage fixer</name>
 	<summary>Fix wrongly cased storages</summary>
 	<description>Remove wrongly cased storages</description>
-	<version>0.0.1</version>
+	<version>0.0.2</version>
 	<licence>agpl</licence>
 	<author>Roeland Douma</author>
 	<namespace>StorageFixer</namespace>
